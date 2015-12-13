@@ -1,0 +1,92 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Game</title>
+	<script type="text/javascript" src="phaser.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var cursors; 
+var player;
+var map;
+var layer;
+var help;
+var instructions = 'Goal: Catch the white rabbit.  Watch for lava! \n<up>: Eat cake (grow)\n<down>: Drink potion (shrink)\n';
+var startTime;
+
+function preload() {
+    game.load.image('alice', './sprite.png');
+    game.load.tilemap('map', './tilemap.csv', null, Phaser.Tilemap.CSV);
+    game.load.image('tiles', './tilemap.png')
+
+}
+
+function create() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    startTime = game.time.now
+
+    map = game.add.tilemap('map', 32, 32);
+    map.addTilesetImage('tiles');
+    layer = map.createLayer(0);
+    layer.resizeWorld();
+    map.setCollisionBetween(1,4);
+
+    map.setTileIndexCallback(2, hitLava, this);
+    map.setTileIndexCallback(3, hitGoal, this);
+
+
+    player = game.add.sprite(64,128, 'alice');
+    game.physics.arcade.enable(player);
+    player.body.bounce.y = 0.1;
+    player.body.bounce.x = 1;
+    player.body.gravity.y = 300;
+    player.body.collideWorldBounds = true;
+    game.camera.follow(player);
+
+
+    help = game.add.text(32, 32, instructions, {font: '16px Arial'});
+    help.fixedToCamera = true;
+
+ 
+    cursors = game.input.keyboard.createCursorKeys();
+    player.body.velocity.x = 200;
+}
+
+function hitLava() {
+    help.setText(instructions + '\nhit lava!');
+    startTime = game.time.now
+    player.position.x = 64
+    player.position.y = 128
+}
+
+function hitGoal() {
+    var completeTime = (game.time.now - startTime) / 1000;
+    help.setText(instructions + '\nhit goal! Completed in ' + completeTime.toString() + ' seconds!');
+    game.paused = true;
+}
+
+function update() {
+    game.physics.arcade.collide(player, layer);
+    var completeTime = (game.time.now - startTime) / 1000;
+    help.setText(instructions + '\nTime = ' + completeTime.toString() + ' seconds!');
+
+    if (cursors.up.isDown && player.scale.x <= 3) {
+        player.scale.x += 0.1;
+        player.scale.y += 0.1;
+        player.position.y += -10;
+    }
+    else if (cursors.down.isDown && player.scale.x >= 0.5) {
+        player.scale.x += -0.1;
+        player.scale.y += -0.1;
+    }
+
+}
+
+</script>
+
+</body>
+</html>
