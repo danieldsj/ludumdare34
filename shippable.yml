@@ -5,6 +5,6 @@ addons:
 
 build:
   ci:
-    - "export DISPLAY=:99.0"
-    - "/etc/init.d/xvfb start"
-    - "pip install python-selenium"
+    - export DISPLAY=:99.0
+    - xvfb-run --server-args="-ac" echo moo
+    - pip install python-selenium
