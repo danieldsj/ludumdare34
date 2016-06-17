@@ -10,4 +10,4 @@ build:
   ci:
     - export DISPLAY=:99.0
     - xvfb-run --server-args="-ac" echo moo
-    - pip install python-selenium
+    - pip search selenium
